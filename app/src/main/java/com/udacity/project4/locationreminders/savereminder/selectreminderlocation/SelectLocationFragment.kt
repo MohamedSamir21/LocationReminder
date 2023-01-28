@@ -69,18 +69,13 @@ class SelectLocationFragment : BaseFragment(),  OnMapReadyCallback{
     }
 
     private fun onLocationSelected() {
-        // Store the selected location details to the view model.
         marker?.let {marker ->
             _viewModel.latitude.value = marker.position.latitude
             _viewModel.longitude.value = marker.position.longitude
             _viewModel.reminderSelectedLocationStr.value = marker.title
             _viewModel.navigationCommand.value = NavigationCommand.Back
         }
-        // Navigate back to the previous fragment to save the reminder and add the geofence.
-        findNavController().navigate(R.id.action_selectLocationFragment_to_saveReminderFragment)
-
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.map_options, menu)
@@ -126,26 +121,27 @@ class SelectLocationFragment : BaseFragment(),  OnMapReadyCallback{
                 latLng.latitude,
                 latLng.longitude
             )
-            map.addMarker(
-                MarkerOptions()
-                    .position(latLng)
-                    .title(getString(R.string.dropped_pin))
-                    .snippet(snippet)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-            )
+             marker = map.addMarker(
+                        MarkerOptions()
+                            .position(latLng)
+                            .title(getString(R.string.dropped_pin))
+                            .snippet(snippet)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                    )
+            marker?.showInfoWindow()
         }
     }
 
     // This method enables the user to select a point of interest(featured place) on the map.
     private fun setPoiClick(map: GoogleMap) {
         map.setOnPoiClickListener { poi ->
-            val poiMarker = map.addMarker(
+            marker = map.addMarker(
                 MarkerOptions()
                     .position(poi.latLng)
                     .title(poi.name)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
             )
-            poiMarker?.showInfoWindow()
+            marker?.showInfoWindow()
         }
     }
 
@@ -171,8 +167,8 @@ class SelectLocationFragment : BaseFragment(),  OnMapReadyCallback{
                         // Determine the level of zoom to the map
                         val zoomLevel = 16f
                         map.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, zoomLevel))
-                        // Enable the user to put marker on the place he prefers.
-                        map.addMarker(MarkerOptions().position(userLatLng))
+                        // Enable the user to put marker on the place he prefers and store in marker.
+                        marker = map.addMarker(MarkerOptions().position(userLatLng))
                     }
 
                 }
@@ -182,9 +178,6 @@ class SelectLocationFragment : BaseFragment(),  OnMapReadyCallback{
 
 
     }
-
-
-
 
     // This method to check if the location permission has been granted or not.
     private fun isPermissionGranted() : Boolean {
