@@ -13,6 +13,7 @@ import com.udacity.project4.databinding.FragmentRemindersBinding
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import com.udacity.project4.utils.setTitle
 import com.udacity.project4.utils.setup
+import com.udacity.project4.utils.wrapEspressoIdlingResource
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ReminderListFragment : BaseFragment() {
@@ -55,39 +56,46 @@ class ReminderListFragment : BaseFragment() {
     }
 
     private fun navigateToAddReminder() {
-        //use the navigationCommand live data to navigate between the fragments
-        _viewModel.navigationCommand.postValue(
-            NavigationCommand.To(
-                ReminderListFragmentDirections.toSaveReminder()
+        wrapEspressoIdlingResource {
+            //use the navigationCommand live data to navigate between the fragments
+            _viewModel.navigationCommand.postValue(
+                NavigationCommand.To(
+                    ReminderListFragmentDirections.toSaveReminder()
+                )
             )
-        )
+        }
+
     }
 
     private fun setupRecyclerView() {
-        val adapter = RemindersListAdapter {
+        wrapEspressoIdlingResource {
+            val adapter = RemindersListAdapter {
+            }
+
+            // Setup the recycler view using the extension function
+            binding.remindersRecyclerView.setup(adapter)
         }
 
-//        setup the recycler view using the extension function
-        binding.reminderssRecyclerView.setup(adapter)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.logout -> {
-                // Sign out and take the user to the sign up screen.
-                AuthUI.getInstance().signOut(requireContext())
-                startActivity(Intent(requireContext(), AuthenticationActivity::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK))
+        wrapEspressoIdlingResource {
+            when (item.itemId) {
+                R.id.logout -> {
+                    // Sign out and take the user to the sign up screen.
+                    AuthUI.getInstance().signOut(requireContext())
+                    startActivity(Intent(requireContext(), AuthenticationActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK))
+                }
             }
+            return super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-//        display logout as menu item
+        //        display logout as menu item
         inflater.inflate(R.menu.main_menu, menu)
     }
 

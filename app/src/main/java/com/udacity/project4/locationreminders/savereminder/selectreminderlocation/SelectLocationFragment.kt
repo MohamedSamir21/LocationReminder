@@ -61,7 +61,7 @@ class SelectLocationFragment : BaseFragment(),  OnMapReadyCallback{
             .findFragmentById(R.id.fragment_map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        binding.saveButton.setOnClickListener {
+        binding.saveLocation.setOnClickListener {
             onLocationSelected()
         }
 

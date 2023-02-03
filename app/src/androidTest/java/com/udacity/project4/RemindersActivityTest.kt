@@ -1,16 +1,29 @@
 package com.udacity.project4
 
 import android.app.Application
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.util.DataBindingIdlingResource
+import com.udacity.project4.util.monitorActivity
+import com.udacity.project4.utils.EspressoIdlingResource
 import kotlinx.coroutines.runBlocking
+import org.hamcrest.CoreMatchers.not
+import org.junit.After
 import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
@@ -27,11 +40,8 @@ class RemindersActivityTest :
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
+    private val dataBindingIdlingResource = DataBindingIdlingResource()
 
-    /**
-     * As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test our code.
-     * at this step we will initialize Koin related code to be able to use it in out testing.
-     */
     @Before
     fun init() {
         stopKoin()//stop the original app koin
@@ -68,4 +78,89 @@ class RemindersActivityTest :
 
 //    TODO: add End to End testing to the app
 
+    /**
+     * Idling resources tell Espresso that the app is idle or busy. This is needed when operations
+     * are not scheduled in the main Looper (for example when executed on a different thread).
+     */
+    @Before
+    fun registerIdlingResource() {
+        IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
+        IdlingRegistry.getInstance().register(dataBindingIdlingResource)
+    }
+
+    /**
+     * Unregister your Idling Resource so it can be garbage collected and does not leak any memory.
+     */
+    @After
+    fun unregisterIdlingResource() {
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
+        IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
+    }
+
+    @Test
+    fun saveAndCheckDisplayingTask() = runBlocking {
+        // GIVEN - Start up Remainders screen.
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+
+        // WHEN - Click on the add FAB button , add a remainder, fill the fields with appropriate data and Save.
+        onView(withId(R.id.addReminderFAB)).perform(click())
+        onView(withId(R.id.remainderTitle))
+            .perform(typeText("remainder"), closeSoftKeyboard())
+        onView(withId(R.id.remainderDescription))
+            .perform(typeText("this is a dummy reminder"), closeSoftKeyboard())
+        onView(withId(R.id.selectLocation)).perform(click())
+        onView(withId(R.id.saveLocation)).perform(click())
+        onView(withId(R.id.saveReminder)).perform(click())
+
+        // THEN - Verify that the remainder is displayed.
+        onView(withText("remainder")).check(matches(isDisplayed()))
+        onView(withText("this is a dummy reminder")).check(matches(isDisplayed()))
+        onView(withId(R.id.selectedLocation)).check(matches(not(isDisplayed())))
+
+        // Make sure the activity is closed before resetting the db:
+        activityScenario.close()
+    }
+
+    @Test
+    fun detectTitleSnackBarMessageError() = runBlocking {
+        // GIVEN - Start up Remainders screen.
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+
+        // WHEN - Click on the add FAB button, leave the title field empty and click Save button.
+        onView(withId(R.id.addReminderFAB)).perform(click())
+        onView(withId(R.id.saveReminder)).perform(click())
+
+        // THEN - Verify that title error message appears when the user leaves the title field empty.
+        onView(withId(R.id.snackbar_text))
+            .check(matches(withText(R.string.select_title)))
+
+        // Make sure the activity is closed before resetting the db:
+        activityScenario.close()
+    }
+
+    @Test
+    fun detectLocationSnackBarMessageError() = runBlocking {
+        // GIVEN - Start up Remainders screen.
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+
+        // WHEN - Click on the add FAB button , fill the title field, don't select  the location and click Save button.
+        onView(withId(R.id.addReminderFAB)).perform(click())
+        onView(withId(R.id.remainderTitle))
+            .perform(typeText("remainder"), closeSoftKeyboard())
+        onView(withId(R.id.saveReminder)).perform(click())
+
+
+        // THEN - Verify that location error message appears when the user doesn't select the location .
+        onView(withId(com.google.android.material.R.id.snackbar_text))
+            .check(matches(withText(R.string.err_select_location)))
+
+        // Make sure the activity is closed before resetting the db:
+        activityScenario.close()
+    }
 }

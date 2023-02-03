@@ -17,7 +17,7 @@
         android:background="@color/white">
 
         <EditText
-            android:id="@+id/reminderTitle"
+            android:id="@+id/remainderTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/reminder_title"
@@ -27,7 +27,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-            android:id="@+id/reminderDescription"
+            android:id="@+id/remainderDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="start"
@@ -36,7 +36,7 @@
             android:text="@={viewModel.reminderDescription}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/reminderTitle" />
+            app:layout_constraintTop_toBottomOf="@id/remainderTitle" />
 
         <TextView
             android:id="@+id/selectLocation"
@@ -51,7 +51,7 @@
             android:text="@string/reminder_location"
             android:textColor="@color/black"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/reminderDescription" />
+            app:layout_constraintTop_toBottomOf="@id/remainderDescription" />
 
         <TextView
             android:id="@+id/selectedLocation"
