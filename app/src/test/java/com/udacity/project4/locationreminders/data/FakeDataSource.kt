@@ -11,13 +11,11 @@ class FakeDataSource(var reminders: MutableList<ReminderDTO>? = mutableListOf())
     private var shouldReturnError = false
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
-        // Return the reminders if there are.
-        if (!shouldReturnError) {
-            reminders?.let { return Success(ArrayList(it)) }
-            return Error("No reminders are found")
+        if (shouldReturnError) { // In case of error.
+            return Error("Error while getting remainders!!")
         }
-        // Otherwise, there is an error getting them.
-        else return Error("Error while getting remainders!!")
+        // Otherwise, return the list.
+        else reminders.let { return Success(ArrayList(it)) }
     }
 
     override suspend fun saveReminder(reminder: ReminderDTO) {
@@ -26,15 +24,15 @@ class FakeDataSource(var reminders: MutableList<ReminderDTO>? = mutableListOf())
     }
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
-        // Return the reminder with the id
-        return if (reminders!!.isNotEmpty()) {
-            // Find the reminder with the passed id.
-            val reminder = reminders?.find {it.id == id }
-            // Check if it exists or not.
-            if (reminder != null) return Success(reminder) else Error("This reminder doesn't exist")
-        }else{
-            Error("The list is empty. This reminder doesn't exist")
-        }
+        // In case of error.
+        if (shouldReturnError) return Error("Reminder not found!")
+
+        // Find the reminder with the passed id.
+        val reminder = reminders!!.find {it.id == id }
+
+        // Return the reminder with the id.
+        return if (reminder != null) return Success(reminder)
+                else Error("Reminder not found!")
     }
 
     override suspend fun deleteAllReminders() {

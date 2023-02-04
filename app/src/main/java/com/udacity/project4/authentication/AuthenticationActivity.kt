@@ -1,6 +1,7 @@
 package com.udacity.project4.authentication
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -29,7 +30,7 @@ class AuthenticationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_authentication)
-
+        determineUserDestination()
         // add (setOnClickListener) to the (loginButton) to handle when the users clicks.
         loginButton.setOnClickListener {
             signInWithGoogleOrEmail()
@@ -68,5 +69,19 @@ class AuthenticationActivity : AppCompatActivity() {
             AuthUI.getInstance()
                 .createSignInIntentBuilder().setAvailableProviders(providers).build(), AuthenticationActivity.SIGN_IN_REQUEST_CODE
         )
+    }
+
+    // This method to check the user's status and determine the user's destination.
+    private fun determineUserDestination(){
+        val auth = FirebaseAuth.getInstance()
+        val currentUser = auth.currentUser
+
+        if (currentUser != null) {
+            val intent = Intent(this, RemindersActivity::class.java)
+            startActivity(intent)
+            finish()
+        } else {
+            // Stay in this login Activity.
+        }
     }
 }

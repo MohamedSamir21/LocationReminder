@@ -1,5 +1,6 @@
 package com.udacity.project4
 
+import android.app.Activity
 import android.app.Application
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
@@ -7,9 +8,12 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.rule.ActivityTestRule
+import com.google.android.material.internal.ContextUtils.getActivity
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
@@ -20,9 +24,12 @@ import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.monitorActivity
 import com.udacity.project4.utils.EspressoIdlingResource
 import kotlinx.coroutines.runBlocking
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
+import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -30,17 +37,24 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
+import org.koin.test.KoinTest
 import org.koin.test.get
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 //END TO END test to black box test the app
 class RemindersActivityTest :
-    AutoCloseKoinTest() {// Extended Koin Test - embed autoclose @after method to close Koin after every test
+    KoinTest {// Extended Koin Test - embed autoclose @after method to close Koin after every test
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
     private val dataBindingIdlingResource = DataBindingIdlingResource()
+
+    // Use activityRule to start an activity before each test method, and to shut it down after each test method.
+    // We can use it to call activity method to get a reference to the current instance of the activity under test (RemindersActivity).
+    // https://developer.android.com/reference/androidx/test/rule/ActivityTestRule
+    @get:Rule
+    val activityRule = ActivityTestRule(RemindersActivity::class.java)
 
     @Before
     fun init() {
@@ -98,7 +112,7 @@ class RemindersActivityTest :
     }
 
     @Test
-    fun saveAndCheckDisplayingTask() = runBlocking {
+    fun saveAndCheckDisplayingTask(){
         // GIVEN - Start up Remainders screen.
         val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
@@ -124,11 +138,10 @@ class RemindersActivityTest :
     }
 
     @Test
-    fun detectTitleSnackBarMessageError() = runBlocking {
+    fun detectTitleSnackBarMessageError(){
         // GIVEN - Start up Remainders screen.
         val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
-
 
         // WHEN - Click on the add FAB button, leave the title field empty and click Save button.
         onView(withId(R.id.addReminderFAB)).perform(click())
@@ -143,18 +156,16 @@ class RemindersActivityTest :
     }
 
     @Test
-    fun detectLocationSnackBarMessageError() = runBlocking {
+    fun detectLocationSnackBarMessageError(){
         // GIVEN - Start up Remainders screen.
         val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
-
 
         // WHEN - Click on the add FAB button , fill the title field, don't select  the location and click Save button.
         onView(withId(R.id.addReminderFAB)).perform(click())
         onView(withId(R.id.remainderTitle))
             .perform(typeText("remainder"), closeSoftKeyboard())
         onView(withId(R.id.saveReminder)).perform(click())
-
 
         // THEN - Verify that location error message appears when the user doesn't select the location .
         onView(withId(com.google.android.material.R.id.snackbar_text))
@@ -163,4 +174,31 @@ class RemindersActivityTest :
         // Make sure the activity is closed before resetting the db:
         activityScenario.close()
     }
+
+    @Test
+    fun detectToastSavingSuccess(){
+        // GIVEN - Start up Remainders screen.
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        // WHEN - Click on the add FAB button , fill the input fields and click Save button.
+        onView(withId(R.id.addReminderFAB)).perform(click())
+        onView(withId(R.id.remainderTitle))
+            .perform(typeText("remainder"), closeSoftKeyboard())
+        onView(withId(R.id.selectLocation)).perform(click())
+        onView(withId(R.id.fragment_map)).perform(longClick())
+        onView(withId(R.id.saveLocation)).perform(click())
+        onView(withId(R.id.saveReminder)).perform(click())
+
+        // THEN - Verify that the toast with saving message success appears.
+        // https://developer.android.com/reference/androidx/test/rule/ActivityTestRule
+        // https://stackoverflow.com/a/28606603/16109025
+        onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not(`is`(activityRule.activity.window.decorView))))
+            .check(matches(isDisplayed()))
+
+        // Make sure the activity is closed before resetting the db:
+        activityScenario.close()
+
+    }
+
 }

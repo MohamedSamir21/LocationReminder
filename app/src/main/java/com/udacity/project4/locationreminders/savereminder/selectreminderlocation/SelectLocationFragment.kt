@@ -188,23 +188,23 @@ class SelectLocationFragment : BaseFragment(),  OnMapReadyCallback{
 
     // This method to enable location tracking.
     private fun enableMyLocation() {
-            if (!checkGPS()){
-                // Then, GPS need to be enabled.
-                popUpAlertDialog()
-            }else if(!isPermissionGranted()){
-                // In case of not granting the location permission, Request it.
-                requestPermissions(
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                    REQUEST_LOCATION_PERMISSION
-                )
-            }else if (isPermissionGranted() && checkGPS()){
-                try {
-                    // Enable the my-location layer.
+            if (isPermissionGranted()){
+                try { // Enable the my-location layer.
                     // It continuously draws an indication of a user's current location and bearing.
                     map.isMyLocationEnabled = true
                 }catch (ex: SecurityException){
                     Log.i("SelectLocationFragment", ex.message!!)
                 }
+            }else{ // In case of not granting the location permission, Request it.
+                requestPermissions(
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    REQUEST_LOCATION_PERMISSION
+                )
+            }
+
+            if (!checkGPS() && isPermissionGranted()){
+                // Then, GPS need to be enabled.
+                popUpAlertDialog()
             }
         }
 

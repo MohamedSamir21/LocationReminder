@@ -56,7 +56,7 @@ class RemindersLocalRepositoryTest {
     }
 
     @Test
-    fun saveReminderAndGetReminder() = runBlocking{
+    fun saveReminder() = runBlocking{
         // GIVEN - save a remainder
         val reminder = ReminderDTO("remainder", "this is a dummy reminder", "location", 2.32322, 3.323323)
         localDataSource.saveReminder(reminder)
@@ -73,6 +73,16 @@ class RemindersLocalRepositoryTest {
         assertThat(returnedReminder.data.location, `is`(reminder.location))
         assertThat(returnedReminder.data.latitude, `is`(reminder.latitude))
         assertThat(returnedReminder.data.longitude, `is`(reminder.longitude))
+    }
+
+    @Test
+    fun getReminder() = runBlocking{
+        // WHEN - call getRemainder to get a remainder.
+        val returnedRemainder = localDataSource.getReminder("A")
+
+        // THEN - Verify that there is an error and the remainder not found.
+        returnedRemainder as Error
+        assertThat(returnedRemainder.message, `is`("Reminder not found!"))
     }
 
     @Test
