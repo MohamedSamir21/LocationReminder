@@ -228,7 +228,7 @@ class SaveReminderFragment : BaseFragment() {
             geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
                 addOnSuccessListener {
                     _viewModel.saveReminder(currentGeofenceDataElement)
-                    Toast.makeText(context,  "Geofence has been added !!", Toast.LENGTH_LONG).show()
+                    Log.i(TAG,  "Geofence has been added !!")
                 }
                 addOnFailureListener {
                     Toast.makeText(context, "Error, geofence hasn't been added!!", Toast.LENGTH_LONG).show()
