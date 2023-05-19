@@ -1,7 +1,6 @@
 package com.udacity.project4.authentication
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -67,7 +66,7 @@ class AuthenticationActivity : AppCompatActivity() {
         // Give the (providers), start the intent and then wait the response of this activity.
         startActivityForResult(
             AuthUI.getInstance()
-                .createSignInIntentBuilder().setAvailableProviders(providers).build(), AuthenticationActivity.SIGN_IN_REQUEST_CODE
+                .createSignInIntentBuilder().setAvailableProviders(providers).build(), SIGN_IN_REQUEST_CODE
         )
     }
 

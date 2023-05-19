@@ -14,7 +14,6 @@ import android.view.*
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -219,10 +218,10 @@ class SelectLocationFragment : BaseFragment(),  OnMapReadyCallback{
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Enable GPS")
         builder.setMessage("To continue, Turn on GPS so you can use the service")
-        builder.setPositiveButton("OK") { dialog, which ->
+        builder.setPositiveButton("OK") { _, _ ->
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             startActivityForResult(intent, REQUEST_GPS_ENABLING)
-        }.setNegativeButton("No thanks"){ dialog, which ->
+        }.setNegativeButton("No thanks"){ _, _ ->
             // Do nothing
         }
         val dialog = builder.create()
