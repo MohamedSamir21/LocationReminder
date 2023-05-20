@@ -61,7 +61,7 @@ location. The app will require the user to create an account and log in to set a
     <b>POI</b>: The app asks the user to select a point of interest (POI) on the map to create a reminder.
     <ul>
       <li>The app asks the user to select a location or POI on the map and add a new marker at that location.</li>
-      <li>The selected POI can be just a simple POI or an area or specific latitude and longitude. The POI must have a location name.</li>
+      <li>The selected POI can be just a simple POI or an area or specific latitude and longitude. The POI has a location name.</li>
       <li>Upon saving, the selected location is returned to the Save Reminder page and the user is asked to input the title and description for the reminder.</li>
       <li>When the reminder is saved, a geofencing request is created. Allowing the user to take Circular Radius for the geofence is a bonus.</li>
     </ul>
@@ -123,8 +123,9 @@ For each reminder, a geofencing request, in the background that fires up a notif
     <li>
       Automation Testing using ViewMatchers and ViewInteractions to simulate user interactions with the app.
     </li>
-      Testing for Snackbar and Toast messages.
     <li>
+      Testing for Snackbar and Toast messages.
+    </li>
       Testing the fragments’ navigation.
     </li>
     <li>
