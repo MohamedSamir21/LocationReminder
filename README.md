@@ -7,7 +7,7 @@ location. The app will require the user to create an account and log in to set a
 ### Important Notes:
 <ul>
   <li>This project was created based on educational purposes according to 
-    <a href="https://www.udacity.com/course/android-kotlin-developer-nanodegree--nd940">Advanced Android Kotlin Development Nanodgree</a>.
+    <a href="https://www.udacity.com/course/android-kotlin-developer-nanodegree--nd940">Advanced Android Kotlin Development Nanodegree</a>.
   </li>
   <li>In order not to break the terms of service, the API key is not provided in this repo. 
     You can put your API key in the (google_maps_api.xml) file from this path ("app/src/debug/res/values/google_maps_api.xml") or directly press this 
